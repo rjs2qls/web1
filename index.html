@@ -1,0 +1,109 @@
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+const questions = [
+  {
+    q: "연인이 연락이 없을 때 나는?",
+    a: ["걱정돼서 계속 확인한다", "바쁠 수 있으니 기다린다", "나도 내 시간을 보낸다"],
+  },
+  {
+    q: "데이트 스타일은?",
+    a: ["항상 붙어있고 싶다", "적당히 자주 본다", "각자 시간도 중요"],
+  },
+  {
+    q: "싸웠을 때 나는?",
+    a: ["바로 풀고 싶다", "시간 두고 이야기", "혼자 정리 필요"],
+  },
+  {
+    q: "애정 표현은?",
+    a: ["자주 한다", "적당히 한다", "많이 안 한다"],
+  },
+  {
+    q: "연애에서 가장 중요한 건?",
+    a: ["안정감", "균형", "자유"],
+  },
+];
+
+export default function LoveStyleApp() {
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [result, setResult] = useState(null);
+
+  const handleAnswer = (index) => {
+    const newAnswers = [...answers, index];
+    setAnswers(newAnswers);
+
+    if (step + 1 < questions.length) {
+      setStep(step + 1);
+    } else {
+      calculateResult(newAnswers);
+    }
+  };
+
+  const calculateResult = (answers) => {
+    const sum = answers.reduce((a, b) => a + b, 0);
+
+    if (sum <= 3) {
+      setResult({
+        type: "집착형",
+        desc: "애정 표현이 많고 상대에게 깊이 몰입하는 스타일",
+        match: "자유로운 사람보다는 안정적인 사람과 잘 맞아요",
+      });
+    } else if (sum <= 7) {
+      setResult({
+        type: "균형형",
+        desc: "사랑과 개인 시간을 잘 조절하는 이상적인 스타일",
+        match: "대부분의 사람과 잘 맞지만 특히 비슷한 균형형과 최고",
+      });
+    } else {
+      setResult({
+        type: "독립형",
+        desc: "자유와 개인 시간을 중요시하는 쿨한 스타일",
+        match: "집착이 적고 이해심 있는 사람과 잘 맞아요",
+      });
+    }
+  };
+
+  const restart = () => {
+    setStep(0);
+    setAnswers([]);
+    setResult(null);
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-pink-50 p-4">
+      <Card className="w-full max-w-md text-center shadow-xl rounded-2xl">
+        <CardContent className="p-6">
+          {!result ? (
+            <>
+              <h2 className="text-xl font-bold mb-4">
+                {questions[step].q}
+              </h2>
+              <div className="flex flex-col gap-2">
+                {questions[step].a.map((choice, i) => (
+                  <Button key={i} onClick={() => handleAnswer(i)}>
+                    {choice}
+                  </Button>
+                ))}
+              </div>
+              <p className="mt-4 text-sm text-gray-400">
+                {step + 1} / {questions.length}
+              </p>
+            </>
+          ) : (
+            <>
+              <h2 className="text-2xl font-bold mb-2">결과</h2>
+              <p className="text-lg font-semibold">{result.type}</p>
+              <p className="mt-2">{result.desc}</p>
+              <p className="mt-2 text-pink-500">궁합: {result.match}</p>
+              <Button className="mt-4" onClick={restart}>
+                다시하기
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
