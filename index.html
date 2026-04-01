@@ -1,7 +1,69 @@
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>연애 스타일 테스트</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Pretendard", sans-serif;
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      width: 90%;
+      max-width: 400px;
+      padding: 24px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin: 6px 0;
+      border: none;
+      border-radius: 10px;
+      background: #f472b6;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover {
+      background: #ec4899;
+    }
+    .progress {
+      margin-top: 10px;
+      font-size: 12px;
+      color: gray;
+    }
+    .result-type {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .match {
+      color: #ec4899;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
 
+<div class="card">
+  <h2 id="question"></h2>
+  <div id="answers"></div>
+  <div class="progress" id="progress"></div>
+</div>
+
+<script>
 const questions = [
   {
     q: "연인이 연락이 없을 때 나는?",
@@ -25,85 +87,82 @@ const questions = [
   },
 ];
 
-export default function LoveStyleApp() {
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState([]);
-  const [result, setResult] = useState(null);
+let step = 0;
+let answers = [];
 
-  const handleAnswer = (index) => {
-    const newAnswers = [...answers, index];
-    setAnswers(newAnswers);
+const questionEl = document.getElementById("question");
+const answersEl = document.getElementById("answers");
+const progressEl = document.getElementById("progress");
 
-    if (step + 1 < questions.length) {
-      setStep(step + 1);
-    } else {
-      calculateResult(newAnswers);
-    }
-  };
+function renderQuestion() {
+  const current = questions[step];
+  questionEl.innerText = current.q;
+  answersEl.innerHTML = "";
 
-  const calculateResult = (answers) => {
-    const sum = answers.reduce((a, b) => a + b, 0);
+  current.a.forEach((choice, index) => {
+    const btn = document.createElement("button");
+    btn.innerText = choice;
+    btn.onclick = () => handleAnswer(index);
+    answersEl.appendChild(btn);
+  });
 
-    if (sum <= 3) {
-      setResult({
-        type: "집착형",
-        desc: "애정 표현이 많고 상대에게 깊이 몰입하는 스타일",
-        match: "자유로운 사람보다는 안정적인 사람과 잘 맞아요",
-      });
-    } else if (sum <= 7) {
-      setResult({
-        type: "균형형",
-        desc: "사랑과 개인 시간을 잘 조절하는 이상적인 스타일",
-        match: "대부분의 사람과 잘 맞지만 특히 비슷한 균형형과 최고",
-      });
-    } else {
-      setResult({
-        type: "독립형",
-        desc: "자유와 개인 시간을 중요시하는 쿨한 스타일",
-        match: "집착이 적고 이해심 있는 사람과 잘 맞아요",
-      });
-    }
-  };
-
-  const restart = () => {
-    setStep(0);
-    setAnswers([]);
-    setResult(null);
-  };
-
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-pink-50 p-4">
-      <Card className="w-full max-w-md text-center shadow-xl rounded-2xl">
-        <CardContent className="p-6">
-          {!result ? (
-            <>
-              <h2 className="text-xl font-bold mb-4">
-                {questions[step].q}
-              </h2>
-              <div className="flex flex-col gap-2">
-                {questions[step].a.map((choice, i) => (
-                  <Button key={i} onClick={() => handleAnswer(i)}>
-                    {choice}
-                  </Button>
-                ))}
-              </div>
-              <p className="mt-4 text-sm text-gray-400">
-                {step + 1} / {questions.length}
-              </p>
-            </>
-          ) : (
-            <>
-              <h2 className="text-2xl font-bold mb-2">결과</h2>
-              <p className="text-lg font-semibold">{result.type}</p>
-              <p className="mt-2">{result.desc}</p>
-              <p className="mt-2 text-pink-500">궁합: {result.match}</p>
-              <Button className="mt-4" onClick={restart}>
-                다시하기
-              </Button>
-            </>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
+  progressEl.innerText = `${step + 1} / ${questions.length}`;
 }
+
+function handleAnswer(index) {
+  answers.push(index);
+
+  if (step + 1 < questions.length) {
+    step++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  const sum = answers.reduce((a, b) => a + b, 0);
+
+  let result;
+
+  if (sum <= 3) {
+    result = {
+      type: "🌹 로맨틱 집착형",
+      desc: "애정 표현이 많고 상대에게 깊이 몰입하는 스타일",
+      match: "안정감 있고 표현을 잘 받아주는 사람과 궁합이 좋아요",
+    };
+  } else if (sum <= 7) {
+    result = {
+      type: "💐 균형 잡힌 부케형",
+      desc: "사랑과 개인 시간을 잘 조절하는 이상적인 스타일",
+      match: "비슷한 균형형 또는 감정이 안정적인 사람과 최고",
+    };
+  } else {
+    result = {
+      type: "🌿 자유로운 그린형",
+      desc: "자유와 개인 시간을 중요시하는 쿨한 스타일",
+      match: "간섭이 적고 이해심 많은 사람과 잘 맞아요",
+    };
+  }
+
+  questionEl.innerText = "결과";
+  answersEl.innerHTML = `
+    <div class="result-type">${result.type}</div>
+    <p>${result.desc}</p>
+    <p class="match">궁합: ${result.match}</p>
+    <button onclick="restart()">다시하기</button>
+  `;
+  progressEl.innerText = "";
+}
+
+function restart() {
+  step = 0;
+  answers = [];
+  renderQuestion();
+}
+
+renderQuestion();
+</script>
+
+</body>
+</html>
